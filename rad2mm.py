@@ -55,6 +55,7 @@ print(dfDCs)
 scaling_factors = {1: (az_res*PRF) / (dfDCs[0]* 2 * np.pi), 2: (az_res*PRF) / (dfDCs[1]* 2 * np.pi), 3: (az_res*PRF) / (dfDCs[2]* 2 * np.pi)}
 print(scaling_factors)
 
+outbovl = bovlpha*0
 for subswath in [1, 2, 3]:
     # Create a GeoDataFrame for the current subswath
     g = gpd.GeoDataFrame(
@@ -79,11 +80,13 @@ for subswath in [1, 2, 3]:
     if subswath in scaling_factors:
         bovlphatemp = bovlphatemp * scaling_factors[subswath]
 
+    # add the grid values to the final output
+    outbovl = outbovl + bovlphatemp
     # Export 'bovlphatemp' to a GeoTIFF file for the current subswath
-    export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
+    # export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
 
 ##I need the merge the subswath{sw}.tif, but I didn't manage it.    
-
+export_xr2tif(outbovl, 'test.tif') #.bovl, f'subswath{subswath}.tif')  # ML: MN, please test/check this line, I write without possibility to test it now
 
 
 
