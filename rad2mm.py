@@ -25,6 +25,7 @@ tr = int(frame[:3])
 #variables from variables
 batch=os.environ['BATCH_CACHE_DIR']
 tif=os.path.join(batch,frame,'GEOC',pair,pair+'.geo.bovldiff.adf.tif')
+outtif=os.path.join(batch,frame,'GEOC',pair,pair+'.geo.bovldiff.adf.mm.tif')
 metafile = os.path.join(os.environ['LiCSAR_public'], str(tr), frame, 'metadata', 'metadata.txt')
 primepoch = misc.grep1line('master=',metafile).split('=')[1]
 path_to_slcdir = os.path.join(os.environ['LiCSAR_procdir'], str(tr), frame, 'SLC', primepoch)
@@ -43,7 +44,7 @@ conncomps = aa #just for clarity
 conncomps = conncomps.where(~np.isnan(bovlpha))
 
 #geopandas dataframe of burst overlap from functions lib.
-gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps('021D_05266_252525')
+gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps(frame)
 
 #calculate dfDC from daz_library
 PRF=486.486
@@ -86,7 +87,7 @@ for subswath in [1, 2, 3]:
     # export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
 
 ##I need the merge the subswath{sw}.tif, but I didn't manage it.    
-export_xr2tif(outbovl, 'test.tif') #.bovl, f'subswath{subswath}.tif')  # ML: MN, please test/check this line, I write without possibility to test it now
+export_xr2tif(outbovl, outtif) #.bovl, f'subswath{subswath}.tif')  # ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
 
 
 
