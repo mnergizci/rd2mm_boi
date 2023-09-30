@@ -7,6 +7,8 @@ from functions import *
 import daz_lib_licsar as dl
 import LiCSAR_misc as misc
 import sys
+import rasterio
+import rasterio.merge import merge
 
 '''
 This code helps to change BOI radian values to mm values regarding per swath.
@@ -87,7 +89,43 @@ for subswath in [1, 2, 3]:
     # export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
 
 ##I need the merge the subswath{sw}.tif, but I didn't manage it.    
-export_xr2tif(outbovl, outtif) #.bovl, f'subswath{subswath}.tif')  # ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
+export_xr2tif(outbovl.bovl, outtif) #.bovl, f'subswath{subswath}.tif')  
+''' ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
+    MN: I checked both way, the code work properly without any error but the output tiff with scale range between -3.40282e+38 and 3.40282e+38 doesn't seem merged subswath.
+'''
+
+'''
+#MN's attempt to mosaic the subswaths through rasterio. But the code doesn't work properly. It produces tiff only including the first subswath.
+## I put the code, maybe it can help me to find another way.
+##merge the subswaths
+subswath_files = ["subswath1.tif", "subswath2.tif", "subswath3.tif"]
+src_files_to_mosaic = []
+print(subswath_files)
+
+for subswath_file in subswath_files:
+    src = rasterio.open(subswath_file)
+    src_files_to_mosaic.append(src)
+
+print(src_files_to_mosaic)
+
+mosaic, out_trans = merge(src_files_to_mosaic)
+
+# Optionally, set the output file's spatial reference and affine transformation
+out_meta = src.meta.copy()
+out_meta.update({"driver": "GTiff",
+                 "height": mosaic.shape[1],
+                 "width": mosaic.shape[2],
+                 "transform": out_trans})
+
+# Specify the output file name and path
+output_file = "merged_subswaths.tif"
+
+# Create the merged GeoTIFF file
+with rasterio.open(output_file, "w", **out_meta) as dest:
+    dest.write(mosaic)
+'''
+
+
 
 
 
