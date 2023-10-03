@@ -100,7 +100,7 @@ command = [
     "gdal_merge.py",
     "-n", "nan",
     "-a_nodata", "nan",
-    "-o", output_file
+    "-o", outtif
 ] + tif_list
 
 # Run the gdal_merge.py script
