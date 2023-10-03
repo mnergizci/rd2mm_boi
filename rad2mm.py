@@ -110,6 +110,12 @@ merge_command = [
 # Run the gdal_merge.py script
 subprocess.run(merge_command, check=True)
 
+#remove the interval output
+for tif_file in tif_list:
+    os.remove(tif_file)
+os.remove(frame+'.geojson')
+print('done')
+
 
 
 
