@@ -48,8 +48,10 @@ conncomps = conncomps.where(~np.isnan(bovlpha))
 
 #geopandas dataframe of burst overlap from functions lib.
 ##bursts geojson
-gpd_bursts = fc.frame2geopandas(frame, use_s1burst=True)
-gpd_bursts.to_file(frame+'.geojson', driver='GeoJSON')
+if not os.path.exists(frame+'.geojson'):
+    print('extracting burst polygons from LiCSInfo database')
+    gpd_bursts = fc.frame2geopandas(frame, use_s1burst=True)
+    gpd_bursts.to_file(frame+'.geojson', driver='GeoJSON')
 
 gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps(frame)
 
