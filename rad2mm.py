@@ -60,11 +60,11 @@ gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps(
 PRF=486.486
 az_res=14 ##it can be improved extracting from par file
 dfDCs=dl.get_dfDC(path_to_slcdir, f0=5405000500, burst_interval=2.758277, returnka=False, returnperswath=True)
-print(dfDCs)
 
 ##rad2mm scaling factor.
 scaling_factors = {1: (az_res*PRF) / (dfDCs[0]* 2 * np.pi), 2: (az_res*PRF) / (dfDCs[1]* 2 * np.pi), 3: (az_res*PRF) / (dfDCs[2]* 2 * np.pi)}
-print(scaling_factors)
+
+print('dfDCs have been calculated, please wait....')
 
 tif_list = []
 #outbovl = bovlpha*0
@@ -97,9 +97,10 @@ for subswath in [1, 2, 3]:
     #Export 'bovlphatemp' to a GeoTIFF file for the current subswath
     export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
     tif_list.append(f'subswath{subswath}.tif)
-    
+
+print('subswats has been converted into mm, they are mosaicing... ')
 #construct the command as a list of strings
-command = [
+merge_command = [
     "gdal_merge.py",
     "-n", "nan",
     "-a_nodata", "nan",
@@ -107,7 +108,7 @@ command = [
 ] + tif_list
 
 # Run the gdal_merge.py script
-subprocess.run(command, check=True)
+subprocess.run(merge_command, check=True)
 
 
 
