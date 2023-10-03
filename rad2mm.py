@@ -32,6 +32,9 @@ metafile = os.path.join(os.environ['LiCSAR_public'], str(tr), frame, 'metadata',
 primepoch = misc.grep1line('master=',metafile).split('=')[1]
 path_to_slcdir = os.path.join(os.environ['LiCSAR_procdir'], str(tr), frame, 'SLC', primepoch)
 
+##bursts geojson
+gpd_bursts = fc.frame2geopandas(frame, use_s1burst=True)
+gpd_bursts.to_file(frame+'.geojson', driver='GeoJSON')
 
 ###Lazecky conncomps idea
 bovlpha=load_tif2xr(tif)
