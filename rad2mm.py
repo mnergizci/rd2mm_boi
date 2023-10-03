@@ -88,16 +88,18 @@ for subswath in [1, 2, 3]:
     bovls = bovls * 0 + 1
 
     # Multiply 'bovlpha' by the binary mask 'bovls' to apply the mask
-    bovlphatemp = bovlpha * bovls
-    if subswath in scaling_factors:
+    bovlphatemp = bovlpha * bovls.bovl
+    if subswath in scaling_factors: # the concept should be actually opposite - but ok for now, good to test in some frame without one of subswaths
         bovlphatemp = bovlphatemp * scaling_factors[subswath]
 
     # add the grid values to the final output
     #outbovl = outbovl + bovlphatemp
     #Export 'bovlphatemp' to a GeoTIFF file for the current subswath
-    export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
-    tif_list.append(f'subswath{subswath}.tif)
+    #export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
+    #tif_list.append(f'subswath{subswath}.tif)
 
+
+''' this is ugly
 print('subswats has been converted into mm, they are mosaicing... ')
 #construct the command as a list of strings
 merge_command = [
@@ -115,12 +117,14 @@ for tif_file in tif_list:
     os.remove(tif_file)
 os.remove(frame+'.geojson')
 print('done')
+'''
 
 
 
+# much more elegant:
+export_xr2tif(outbovl, outtif) #.bovl, f'subswath{subswath}.tif')  
 
 
-#export_xr2tif(outbovl.bovl, outtif) #.bovl, f'subswath{subswath}.tif')  
 ''' ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
     MN: I checked both way, the code work properly without any error but the output tiff with scale range between -3.40282e+38 and 3.40282e+38 doesn't seem merged subswath.
 '''
