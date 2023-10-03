@@ -8,7 +8,7 @@ import daz_lib_licsar as dl
 import LiCSAR_misc as misc
 import sys
 import rasterio
-import rasterio.merge import merge
+from rasterio.merge import merge
 
 '''
 This code helps to change BOI radian values to mm values regarding per swath.
