@@ -93,7 +93,7 @@ for subswath in [1, 2, 3]:
         bovlphatemp = bovlphatemp * scaling_factors[subswath]
 
     # add the grid values to the final output
-    outbovl = outbovl + bovlphatemp
+    outbovl = outbovl.fillna(0) + bovlphatemp.fillna(0)
     #Export 'bovlphatemp' to a GeoTIFF file for the current subswath
     #export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
     #tif_list.append(f'subswath{subswath}.tif)
@@ -122,7 +122,7 @@ print('done')
 
 
 # much more elegant:
-export_xr2tif(outbovl, outtif) #.bovl, f'subswath{subswath}.tif')  
+export_xr2tif(outbovl.where(outbovl != 0), outtif) #.bovl, f'subswath{subswath}.tif')  
 
 
 ''' ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
