@@ -67,7 +67,7 @@ scaling_factors = {1: (az_res*PRF) / (dfDCs[0]* 2 * np.pi), 2: (az_res*PRF) / (d
 print('dfDCs have been calculated, please wait....')
 
 tif_list = []
-#outbovl = bovlpha*0
+outbovl = bovlpha*0
 for subswath in [1, 2, 3]:
     # Create a GeoDataFrame for the current subswath
     g = gpd.GeoDataFrame(
@@ -93,7 +93,7 @@ for subswath in [1, 2, 3]:
         bovlphatemp = bovlphatemp * scaling_factors[subswath]
 
     # add the grid values to the final output
-    #outbovl = outbovl + bovlphatemp
+    outbovl = outbovl + bovlphatemp
     #Export 'bovlphatemp' to a GeoTIFF file for the current subswath
     #export_xr2tif(bovlphatemp.bovl, f'subswath{subswath}.tif')
     #tif_list.append(f'subswath{subswath}.tif)
