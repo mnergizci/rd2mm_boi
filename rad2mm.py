@@ -54,7 +54,8 @@ if not os.path.exists(frame+'.geojson'):
     gpd_bursts = fc.frame2geopandas(frame, use_s1burst=True)
     gpd_bursts.to_file(frame+'.geojson', driver='GeoJSON')
 
-gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps(frame)
+#gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3 = extract_burst_overlaps(frame)
+gpd_overlaps, sw_overlaps_dict = extract_burst_overlaps(frame)
 
 #calculate dfDC from daz_library
 PRF=486.486
@@ -62,17 +63,19 @@ az_res=14 ##it can be improved extracting from par file
 dfDCs=dl.get_dfDC(path_to_slcdir, f0=5405000500, burst_interval=2.758277, returnka=False, returnperswath=True)
 
 ##rad2mm scaling factor.
-scaling_factors = {1: (az_res*PRF) / (dfDCs[0]* 2 * np.pi), 2: (az_res*PRF) / (dfDCs[1]* 2 * np.pi), 3: (az_res*PRF) / (dfDCs[2]* 2 * np.pi)}
+scaling_factors = dict()
+for sw in sw_overlaps_dict.keys():
+    scaling_factors[sw] = (az_res*PRF) / (dfDCs[sw-1]* 2 * np.pi)   # ML: need to check if this is correct - i.e. exact output of dl.get_dfDC
 
 print('dfDCs have been calculated, please wait....')
 
 tif_list = []
 outbovl = bovlpha*0
-for subswath in [1, 2, 3]:
+for subswath in sw_overlaps_dict.keys():
     # Create a GeoDataFrame for the current subswath
     g = gpd.GeoDataFrame(
-        {'bovl': globals()[f'overlap_gdf{subswath}'].index.values},
-        geometry=globals()[f'overlap_gdf{subswath}'].geometry,
+        {'bovl': sw_overlaps_dict[subswath].index.values},
+        geometry=sw_overlaps_dict[subswath].geometry,
         crs={"init": "epsg:4326"}
     )
 
@@ -88,9 +91,9 @@ for subswath in [1, 2, 3]:
     bovls = bovls * 0 + 1
 
     # Multiply 'bovlpha' by the binary mask 'bovls' to apply the mask
-    bovlphatemp = bovlpha * bovls.bovl
-    if subswath in scaling_factors: # the concept should be actually opposite - but ok for now, good to test in some frame without one of subswaths
-        bovlphatemp = bovlphatemp * scaling_factors[subswath]
+    bovlphatemp = bovlpha * bovls.bovl * scaling_factors[subswath]
+    #if subswath in scaling_factors: # the concept should be actually opposite - but ok for now, good to test in some frame without one of subswaths
+    #    bovlphatemp = bovlphatemp * scaling_factors[subswath]
 
     # add the grid values to the final output
     outbovl = outbovl.fillna(0) + bovlphatemp.fillna(0)
@@ -122,7 +125,7 @@ print('done')
 
 
 # much more elegant:
-export_xr2tif(outbovl.where(outbovl != 0), outtif) #.bovl, f'subswath{subswath}.tif')  
+export_xr2tif(outbovl.where(outbovl != 0), outtif)      #.bovl, f'subswath{subswath}.tif')  
 
 
 ''' ML: MN, please test/check this line, I write without possibility to test it now - maybe should be outbovl.bovl?
