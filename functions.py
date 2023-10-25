@@ -1,9 +1,10 @@
 import geopandas as gpd
 import pandas as pd
+import os
 
-def extract_burst_overlaps(frame):
+def extract_burst_overlaps(frame, jsonpath=os.getcwd()):
     # Read GeoJSON data
-    data_temp = gpd.read_file(frame + '.geojson')
+    data_temp = gpd.read_file(os.path.join(jsonpath, frame + '.geojson'))
 
     # Change CRS to EPSG:4326
     data_temp = data_temp.to_crs(epsg=4326)
@@ -18,6 +19,20 @@ def extract_burst_overlaps(frame):
 
     # Divide frame into subswaths
     data_temp = data_temp.sort_values(by=['burstID']).reset_index(drop=True)
+    gpd_overlaps = None
+    # ML: a fix to handle less than 3 swaths
+    for swath in data_temp.swath.unique().values:
+        swdata = data_temp[data_temp.swath == swath]
+        # Divide burst overlaps into odd and even numbers
+        a1 = swdata.iloc[::2]
+        b1 = swdata.iloc[1::2]
+        # Find burst overlaps
+        if type(gpd_overlaps) == type(None):
+            gpd_overlaps = gpd.overlay(a1, b1, how='intersection')
+        else:
+            gpd_overlaps = pd.concat([gpd_overlaps, gpd.overlay(a1, b1, how='intersection')], ignore_index=True)
+    return gpd_overlaps
+'''
     sw1 = data_temp[data_temp.swath == '1']
     sw2 = data_temp[data_temp.swath == '2']
     sw3 = data_temp[data_temp.swath == '3']
@@ -39,3 +54,4 @@ def extract_burst_overlaps(frame):
     gpd_overlaps = gpd.GeoDataFrame(pd.concat([overlap_gdf1, overlap_gdf2, overlap_gdf3], ignore_index=True))
 
     return gpd_overlaps, overlap_gdf1, overlap_gdf2, overlap_gdf3
+'''
