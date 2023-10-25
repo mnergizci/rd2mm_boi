@@ -29,7 +29,7 @@ def extract_burst_overlaps(frame, jsonpath=os.getcwd()):
         b1 = swdata.iloc[1::2]
         # Find burst overlaps
         sw_overlaps = gpd.overlay(a1, b1, how='intersection')
-        swathdict[swath] = sw_overlaps
+        swathdict[int(swath)] = sw_overlaps
         if type(gpd_overlaps) == type(None):
             gpd_overlaps = sw_overlaps
         else:
