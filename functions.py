@@ -20,6 +20,7 @@ def extract_burst_overlaps(frame, jsonpath=os.getcwd()):
     # Divide frame into subswaths
     data_temp = data_temp.sort_values(by=['burstID']).reset_index(drop=True)
     gpd_overlaps = None
+    swathdict = dict()
     # ML: a fix to handle less than 3 swaths
     for swath in data_temp.swath.unique().values:
         swdata = data_temp[data_temp.swath == swath]
@@ -27,11 +28,13 @@ def extract_burst_overlaps(frame, jsonpath=os.getcwd()):
         a1 = swdata.iloc[::2]
         b1 = swdata.iloc[1::2]
         # Find burst overlaps
+        sw_overlaps = gpd.overlay(a1, b1, how='intersection')
+        swathdict[swath] = sw_overlaps
         if type(gpd_overlaps) == type(None):
-            gpd_overlaps = gpd.overlay(a1, b1, how='intersection')
+            gpd_overlaps = sw_overlaps
         else:
-            gpd_overlaps = pd.concat([gpd_overlaps, gpd.overlay(a1, b1, how='intersection')], ignore_index=True)
-    return gpd_overlaps
+            gpd_overlaps = pd.concat([gpd_overlaps, sw_overlaps], ignore_index=True)
+    return gpd_overlaps, swathdict
 '''
     sw1 = data_temp[data_temp.swath == '1']
     sw2 = data_temp[data_temp.swath == '2']
