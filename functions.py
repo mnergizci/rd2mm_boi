@@ -22,7 +22,7 @@ def extract_burst_overlaps(frame, jsonpath=os.getcwd()):
     gpd_overlaps = None
     swathdict = dict()
     # ML: a fix to handle less than 3 swaths
-    for swath in data_temp.swath.unique().values:
+    for swath in data_temp.swath.unique():
         swdata = data_temp[data_temp.swath == swath]
         # Divide burst overlaps into odd and even numbers
         a1 = swdata.iloc[::2]
