@@ -59,7 +59,7 @@ gpd_overlaps, sw_overlaps_dict = extract_burst_overlaps(frame)
 
 #calculate dfDC from daz_library
 PRF=486.486
-az_res=14000 ##it can be improved extracting from par file
+az_res=14 ##it can be improved extracting from par file
 dfDCs=dl.get_dfDC(path_to_slcdir, f0=5405000500, burst_interval=2.758277, returnka=False, returnperswath=True) # no bursts in swath = np.nan (i.e. dfDCs will always have 3 values, corresp. to swaths)
 
 ##rad2mm scaling factor.
